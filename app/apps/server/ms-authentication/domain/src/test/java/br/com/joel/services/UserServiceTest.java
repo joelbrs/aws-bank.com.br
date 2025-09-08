@@ -1,0 +1,107 @@
+package br.com.joel.services;
+
+import br.com.joel.domain.domain.User;
+import br.com.joel.domain.domain.UserPassword;
+import br.com.joel.ports.database.UserPasswordRepository;
+import br.com.joel.ports.database.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+@ExtendWith(org.mockito.junit.jupiter.MockitoExtension.class)
+class UserServiceTest {
+
+    @Mock
+    private CryptoService cryptoService;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private UserPasswordRepository userPasswordRepository;
+    @Mock
+    private AccountService accountService;
+    @Mock
+    private TOTPService totpService;
+
+    @InjectMocks
+    private UserService userService;
+
+    @BeforeEach
+    void setUp() {
+        String jwtSecret = "secret";
+        userService = new UserService(
+                userRepository,
+                userPasswordRepository,
+                totpService,
+                cryptoService,
+                accountService,
+                jwtSecret
+        );
+    }
+
+    @Test
+    void createUser_success() throws Exception {
+        User user =  new User();
+        user.setTaxId("12345678901");
+        UserPassword password = new UserPassword();
+        password.setLoginPassword("senha");
+        password.setActionsPassword("outraSenha");
+        user.setPassword(password);
+
+        when(cryptoService.encrypt(anyString(), anyString())).thenReturn("encryptedCpf");
+        when(cryptoService.hash(anyString())).thenReturn("hashed");
+        doNothing().when(totpService).sendTOTP(anyString(), any());
+
+        userService.createUser(user);
+
+        verify(userRepository).create(any(User.class));
+        verify(userPasswordRepository).create(any(UserPassword.class));
+    }
+
+    @Test
+    void createUser_exception() throws Exception {
+        User user = new User();
+        user.setTaxId("12345678901");
+        UserPassword password = new UserPassword();
+        password.setLoginPassword("senha");
+        password.setActionsPassword("outraSenha");
+        user.setPassword(password);
+
+        when(cryptoService.encrypt(anyString(), anyString())).thenThrow(new RuntimeException("fail"));
+
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> userService.createUser(user));
+        assertTrue(ex.getMessage().contains("Error creating user"));
+    }
+
+    @Test
+    void confirmUser_success() {
+        when(userRepository.existsByTaxId("cpf")).thenReturn(true);
+        doNothing().when(totpService).validateTOTP(anyString(), anyString());
+
+        userService.confirmUser("cpf", "123");
+
+        verify(userRepository).confirm("cpf");
+        verify(accountService).createAccount("cpf");
+    }
+
+    @Test
+    void confirmUser_notFound() {
+        when(userRepository.existsByTaxId("cpf")).thenReturn(false);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> userService.confirmUser("cpf", "123"));
+        assertTrue(ex.getMessage().contains("does not exist"));
+    }
+
+    @Test
+    void confirmUser_totpException() {
+        when(userRepository.existsByTaxId("cpf")).thenReturn(true);
+        doThrow(new IllegalArgumentException("fail")).when(totpService).validateTOTP(anyString(), anyString());
+
+        userService.confirmUser("cpf", "123");
+
+        verify(userRepository, never()).confirm("cpf");
+        verify(accountService, never()).createAccount("cpf");
+    }
+}
