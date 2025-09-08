@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: ms-authentication
+
+server:
+  servlet:
+    context-path: ms-authentication
+  port: 8080
