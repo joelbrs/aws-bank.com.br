@@ -1,8 +1,18 @@
 spring:
   application:
     name: ms-authentication
+  cloud:
+    aws:
+      credentials:
+        access-key: ${AWS_ACCESS_KEY}
+        secret-key: ${AWS_SECRET_KEY}
+      region:
+        static: ${AWS_REGION}
 
 server:
   servlet:
     context-path: ms-authentication
   port: 8080
+
+email:
+  from: ${BANK_NO_REPLY_EMAIL}
