@@ -16,7 +16,6 @@ This Turborepo includes the following packages/apps:
 
 ### Apps and Packages
 
-- `docs`: a [Nuxt](https://nuxt.com/) app
 - `web`: another [Vue3](https://vuejs.org/) app
 - `ui`: a stub Vue component library shared by both `web` and `docs` applications
 - `eslint-config-custom`: `eslint` configurations (includes `@nuxtjs/eslint-config-typescript` and `@vue/eslint-config-typescript`)
