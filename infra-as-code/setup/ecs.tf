@@ -51,6 +51,8 @@ resource "aws_ecs_service" "ms_authentication_ecs_service" {
   task_definition  = aws_ecs_task_definition.ms_authentication_task_definition.arn
   desired_count   = 1
   launch_type     = "FARGATE"
+
+  depends_on = [ module.alb ]
   
   network_configuration {
     subnets          = module.vpc.private_subnets

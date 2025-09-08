@@ -16,7 +16,7 @@ module "alb" {
       from_port   = 80
       to_port     = 80
       ip_protocol = "tcp"
-      cidr_ipv4   = "0.0.0.0/0"
+      cidr_ipv4   = module.vpc.vpc_cidr_block
     }
   }
 

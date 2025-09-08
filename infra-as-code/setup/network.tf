@@ -5,5 +5,5 @@ module "web_server_sg" {
   description = "Security group for ECS tasks with HTTP ports open within VPC"
   vpc_id      = module.vpc.vpc_id
 
-  ingress_cidr_blocks = ["10.10.0.0/16"]
+  ingress_cidr_blocks = [module.vpc.vpc_cidr_block]
 }
