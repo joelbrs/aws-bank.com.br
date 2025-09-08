@@ -27,7 +27,7 @@ module "ecr" {
   })
 
   tags = {
-    Environment = var.environment,
+    Environment = var.environment
     Project     = var.project_name
   }
 }
