@@ -2,7 +2,6 @@ package br.com.joel.services;
 
 import br.com.joel.domain.domain.User;
 import br.com.joel.domain.domain.enums.UserStatus;
-import br.com.joel.ports.database.UserPasswordRepository;
 import br.com.joel.ports.database.UserRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -18,7 +17,6 @@ public class UserService {
 
     private final String jwtSecret;
 
-    //TODO: @Transactional
     public void createUser(User user) {
         try {
             user.setTaxId(cryptoService.encrypt(user.getTaxId(), jwtSecret));
@@ -37,7 +35,6 @@ public class UserService {
         }
     }
 
-    //TODO: @Transactional
     public void confirmUser(String taxId, String totpCode) {
         boolean exists = userRepository.existsByTaxId(taxId);
 

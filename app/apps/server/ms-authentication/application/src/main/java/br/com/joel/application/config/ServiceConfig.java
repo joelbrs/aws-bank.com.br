@@ -1,5 +1,7 @@
 package br.com.joel.application.config;
 
+import br.com.joel.application.infrastructure.services.TOTPTransactionalService;
+import br.com.joel.application.infrastructure.services.UserTransactionalService;
 import br.com.joel.ports.EmailPort;
 import br.com.joel.ports.crypto.CryptoPort;
 import br.com.joel.ports.database.AccountRepository;
@@ -32,7 +34,7 @@ public class ServiceConfig {
 
     @Bean(name = TOTP_SERVICE)
     public TOTPService totpService(EmailPort emailPort, TOTPCacheRepository totpCacheRepository) {
-        return new TOTPService(emailPort, totpCacheRepository);
+        return new TOTPTransactionalService(emailPort, totpCacheRepository);
     }
 
     @Bean(name = USER_PASSWORD_SERVICE)
@@ -51,6 +53,6 @@ public class ServiceConfig {
             AccountService accountService,
             @Value("${jwt.secret}") String jwtSecret
     ) {
-        return new UserService(userRepository, userPasswordService, totpService, cryptoService, accountService, jwtSecret);
+        return new UserTransactionalService(userRepository, userPasswordService, totpService, cryptoService, accountService, jwtSecret);
     }
 }
