@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final UserPasswordRepository userPasswordRepository;
+    private final UserPasswordService userPasswordService;
 
     private final TOTPService totpService;
     private final CryptoService cryptoService;
@@ -19,7 +19,6 @@ public class UserService {
     private final String jwtSecret;
 
     //TODO: @Transactional
-    //TODO: create user's passwords service to handle password logic (including validation and cryptography)
     public void createUser(User user) {
         try {
             user.setTaxId(cryptoService.encrypt(user.getTaxId(), jwtSecret));
@@ -27,13 +26,8 @@ public class UserService {
 
             user.getPassword().setTaxId(user.getTaxId());
 
-            user.getPassword()
-                    .setLoginPassword(cryptoService.hash(user.getPassword().getLoginPassword()));
-            user.getPassword()
-                    .setActionsPassword(cryptoService.hash(user.getPassword().getActionsPassword()));
-
             userRepository.create(user);
-            userPasswordRepository.create(user.getPassword());
+            userPasswordService.create(user.getPassword());
 
             totpService.sendTOTP(user.getTaxId(), user.getEmail());
         } catch (Exception e) {
