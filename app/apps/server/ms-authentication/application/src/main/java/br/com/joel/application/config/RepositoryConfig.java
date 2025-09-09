@@ -11,6 +11,7 @@ import br.com.joel.ports.database.AccountRepository;
 import br.com.joel.ports.database.UserPasswordRepository;
 import br.com.joel.ports.database.UserRepository;
 import br.com.joel.ports.database.cache.TOTPCacheRepository;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -44,7 +45,7 @@ public class RepositoryConfig {
     }
 
     @Bean(name = TOTP_CACHE_REPOSITORY)
-    public TOTPCacheRepository totpCacheRepository(RedisTemplate<String, String> redisTemplate) {
+    public TOTPCacheRepository totpCacheRepository(@Qualifier(CacheConfig.TEMPLATE_STRING_TO_STRING) RedisTemplate<String, String> redisTemplate) {
         return new TOPTCacheRepositoryImpl(redisTemplate);
     }
 }

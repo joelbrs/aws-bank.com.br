@@ -1,5 +1,6 @@
 package br.com.joel.application.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,8 +15,11 @@ public class CacheConfig {
     public static final String TEMPLATE_STRING_TO_STRING = "TemplateStringToString";
 
     @Bean
-    public RedisConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory();
+    public RedisConnectionFactory redisConnectionFactory(
+            @Value("${spring.data.redis.host}") String host,
+            @Value("${spring.data.redis.port}") int port
+    ) {
+        return new LettuceConnectionFactory(host, port);
     }
 
     @Bean(name = TEMPLATE_STRING_TO_STRING)

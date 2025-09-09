@@ -25,7 +25,7 @@ public class UserTransactionalService extends UserService {
 
     @Transactional
     @Override
-    public void confirmUser(String taxId, String totpCode) {
+    public void confirmUser(String taxId, String totpCode){
         super.confirmUser(taxId, totpCode);
     }
 }
