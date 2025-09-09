@@ -13,10 +13,23 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      ssl:
+        enabled: true
+
+  cache:
+    redis:
+      time-to-live: 5m
+
 server:
   servlet:
     context-path: /ms-authentication
   port: 8080
 
 email:
-  from: ${BANK_NO_REPLY_EMAIL}
+  from: ${BANK_NO_REPLY_EMAIL:noreply@bank.com.br}
+
+jwt:
+  secret: ${JWT_SECRET:mysecretkey}
