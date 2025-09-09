@@ -10,7 +10,6 @@ public class TOTPService {
     private final EmailPort emailPort;
     private final TOTPCacheRepository totpCacheRepository;
 
-    //TODO: @Transactional
     public void sendTOTP(String taxId, String to) {
         int totpCode = this.generateTOTP();
 
