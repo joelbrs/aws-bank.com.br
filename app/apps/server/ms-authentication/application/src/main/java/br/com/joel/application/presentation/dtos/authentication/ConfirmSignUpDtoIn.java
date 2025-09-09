@@ -1,9 +1,9 @@
-package br.com.joel.application.presentation.dtos.user;
+package br.com.joel.application.presentation.dtos.authentication;
 
 import jakarta.validation.constraints.NotBlank;
 import org.hibernate.validator.constraints.br.CPF;
 
-public record ConfirmUserDtoIn(
+public record ConfirmSignUpDtoIn(
         @NotBlank
         @CPF
         String taxId,

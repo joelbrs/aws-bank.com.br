@@ -1,11 +1,11 @@
 package br.com.joel.application.infrastructure.database.repositories.cache;
 
-import br.com.joel.ports.database.cache.TOTPCacheRepository;
+import br.com.joel.ports.database.cache.CacheRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 
 @RequiredArgsConstructor
-public class TOPTCacheRepositoryImpl implements TOTPCacheRepository {
+public class TOPTCacheRepositoryImpl implements CacheRepository {
 
     private final RedisTemplate<String, String> redisTemplate;
 

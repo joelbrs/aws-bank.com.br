@@ -7,7 +7,7 @@ import br.com.joel.ports.crypto.CryptoPort;
 import br.com.joel.ports.database.AccountRepository;
 import br.com.joel.ports.database.UserPasswordRepository;
 import br.com.joel.ports.database.UserRepository;
-import br.com.joel.ports.database.cache.TOTPCacheRepository;
+import br.com.joel.ports.database.cache.CacheRepository;
 import br.com.joel.services.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +21,7 @@ public class ServiceConfig {
     public static final String TOTP_SERVICE = "TOTPService";
     public static final String USER_PASSWORD_SERVICE = "UserPasswordService";
     public static final String USER_SERVICE = "UserService";
+    public static final String AUTHENTICATION_SERVICE = "AuthenticationService";
 
     @Bean(name = ACCOUNT_SERVICE)
     public AccountService accountService(AccountRepository accountRepository) {
@@ -33,8 +34,8 @@ public class ServiceConfig {
     }
 
     @Bean(name = TOTP_SERVICE)
-    public TOTPService totpService(EmailPort emailPort, TOTPCacheRepository totpCacheRepository) {
-        return new TOTPTransactionalService(emailPort, totpCacheRepository);
+    public TOTPService totpService(EmailPort emailPort, CacheRepository cacheRepository) {
+        return new TOTPTransactionalService(emailPort, cacheRepository);
     }
 
     @Bean(name = USER_PASSWORD_SERVICE)
@@ -49,10 +50,18 @@ public class ServiceConfig {
             UserRepository userRepository,
             UserPasswordService userPasswordService,
             TOTPService totpService,
+            AccountService accountService
+    ) {
+        return new UserTransactionalService(userRepository, userPasswordService, totpService, accountService);
+    }
+
+    @Bean(name = AUTHENTICATION_SERVICE)
+    public AuthenticationService authenticationService(
+            UserService userService,
+            CacheRepository cacheRepository,
             CryptoService cryptoService,
-            AccountService accountService,
             @Value("${jwt.secret}") String jwtSecret
     ) {
-        return new UserTransactionalService(userRepository, userPasswordService, totpService, cryptoService, accountService, jwtSecret);
+        return new AuthenticationService(userService, cacheRepository, cryptoService, jwtSecret);
     }
 }

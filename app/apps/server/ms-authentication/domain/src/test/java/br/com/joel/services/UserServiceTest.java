@@ -19,7 +19,7 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
     @Mock
-    private UserPasswordRepository userPasswordRepository;
+    private UserPasswordService userPasswordService;
     @Mock
     private AccountService accountService;
     @Mock
@@ -30,14 +30,11 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        String jwtSecret = "secret";
         userService = new UserService(
                 userRepository,
-                userPasswordRepository,
+                userPasswordService,
                 totpService,
-                cryptoService,
-                accountService,
-                jwtSecret
+                accountService
         );
     }
 
@@ -57,7 +54,7 @@ class UserServiceTest {
         userService.createUser(user);
 
         verify(userRepository).create(any(User.class));
-        verify(userPasswordRepository).create(any(UserPassword.class));
+        verify(userPasswordService).create(any(UserPassword.class));
     }
 
     @Test

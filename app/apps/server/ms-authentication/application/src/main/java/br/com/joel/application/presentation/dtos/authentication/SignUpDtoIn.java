@@ -1,4 +1,4 @@
-package br.com.joel.application.presentation.dtos.user;
+package br.com.joel.application.presentation.dtos.authentication;
 
 import br.com.joel.domain.domain.User;
 import br.com.joel.domain.domain.UserPassword;
@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.br.CPF;
 
-public record CreateUserDtoIn(
+public record SignUpDtoIn(
 
     @NotBlank
     String name,

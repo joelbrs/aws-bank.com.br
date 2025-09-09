@@ -10,11 +10,9 @@ public class UserTransactionalService extends UserService {
             UserRepository userRepository,
             UserPasswordService userPasswordService,
             TOTPService totpService,
-            CryptoService cryptoService,
-            AccountService accountService,
-            String jwtSecret
+            AccountService accountService
     ) {
-        super(userRepository, userPasswordService, totpService, cryptoService, accountService, jwtSecret);
+        super(userRepository, userPasswordService, totpService, accountService);
     }
 
     @Transactional
