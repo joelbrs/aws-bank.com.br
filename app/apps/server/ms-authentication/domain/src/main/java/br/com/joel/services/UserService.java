@@ -19,6 +19,7 @@ public class UserService {
     private final String jwtSecret;
 
     //TODO: @Transactional
+    //TODO: create user's passwords service to handle password logic (including validation and cryptography)
     public void createUser(User user) {
         try {
             user.setTaxId(cryptoService.encrypt(user.getTaxId(), jwtSecret));
