@@ -1,6 +1,7 @@
 package br.com.joel.services;
 
 import br.com.joel.domain.domain.UserPassword;
+import br.com.joel.exceptions.BusinessException;
 import br.com.joel.ports.database.UserPasswordRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -21,11 +22,11 @@ public class UserPasswordService {
 
     private void validate(UserPassword userPassword) {
         if (userPassword.getActionsPassword().length() != 6) {
-            throw new IllegalArgumentException("Invalid actions password");
+            throw new BusinessException("Invalid actions password");
         }
 
         if (userPassword.getLoginPassword().length() != 8) {
-            throw new IllegalArgumentException("Invalid login password");
+            throw new BusinessException("Invalid login password");
         }
     }
 }

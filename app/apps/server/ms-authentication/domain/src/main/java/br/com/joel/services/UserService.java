@@ -2,9 +2,13 @@ package br.com.joel.services;
 
 import br.com.joel.domain.domain.User;
 import br.com.joel.domain.domain.enums.UserStatus;
+import br.com.joel.exceptions.BusinessException;
+import br.com.joel.exceptions.ExternalServiceException;
 import br.com.joel.ports.database.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 public class UserService {
 
@@ -28,10 +32,12 @@ public class UserService {
             userPasswordService.create(user.getPassword());
 
             totpService.sendTOTP(user.getTaxId(), user.getEmail());
+        } catch (BusinessException e) {
+            log.error("[ERROR] Business exception when creating user: {}", e.getMessage());
+            throw new BusinessException("Error creating user...", e);
         } catch (Exception e) {
-            //TODO: add logging
-            //TODO: create personalized exception
-            throw new RuntimeException("Error creating user: " + e.getMessage());
+            log.error("[ERROR] Exception when creating user: {}", e.getMessage());
+            throw new ExternalServiceException("Error creating user...", e);
         }
     }
 
@@ -39,8 +45,8 @@ public class UserService {
         boolean exists = userRepository.existsByTaxId(taxId);
 
         if (!exists) {
-            //TODO: add logging
-            throw new IllegalArgumentException("User with taxId " + taxId + " does not exist.");
+            log.error("[ERROR] User with id {} does not exist", taxId);
+            throw new BusinessException("User with taxId " + taxId + " does not exist.");
         }
 
         try {
@@ -49,8 +55,8 @@ public class UserService {
             userRepository.confirm(taxId);
             accountService.createAccount(taxId);
         } catch (Exception e) {
-            //TODO: add logging
-            //TODO: create personalized exception
+            log.error("[ERROR] Exception when confirming user: {}", e.getMessage());
+            throw new ExternalServiceException("Error confirming user...", e);
         }
     }
 }
