@@ -23,7 +23,7 @@ public class UserService {
 
     public void createUser(User user) {
         try {
-            user.setTaxId(cryptoService.encrypt(user.getTaxId(), jwtSecret));
+            user.setTaxId(this.encryptTaxId(user.getTaxId()));
             user.setStatus(UserStatus.NOT_CONFIRMED);
 
             user.getPassword().setTaxId(user.getTaxId());
@@ -42,6 +42,7 @@ public class UserService {
     }
 
     public void confirmUser(String taxId, String totpCode) {
+        taxId = this.encryptTaxId(taxId);
         boolean exists = userRepository.existsByTaxId(taxId);
 
         if (!exists) {
@@ -57,6 +58,15 @@ public class UserService {
         } catch (Exception e) {
             log.error("[ERROR] Exception when confirming user: {}", e.getMessage());
             throw new ExternalServiceException("Error confirming user...", e);
+        }
+    }
+
+    private String encryptTaxId(String taxId) {
+        try {
+            return cryptoService.encrypt(taxId, jwtSecret);
+        } catch (Exception e) {
+            log.error("[ERROR] Exception when encrypting taxId: {}", e.getMessage());
+            throw new ExternalServiceException("Error encrypting taxId...", e);
         }
     }
 }
