@@ -2,13 +2,13 @@ FROM eclipse-temurin:21-jdk-jammy AS build
 
 WORKDIR /app
 
-COPY pom.xml .
-COPY src ./src
+COPY application/pom.xml .
 COPY application/.mvn .mvn
 COPY application/mvnw ./
-RUN ./mvnw dependency:go-offline
+COPY application/src ./src
 
-RUN ./mvnw clean package -DskipTests 
+RUN ./mvnw dependency:go-offline
+RUN ./mvnw clean package -DskipTests
 
 FROM eclipse-temurin:21-jre-jammy
 
@@ -18,8 +18,6 @@ RUN addgroup --system spring && adduser --system --ingroup spring spring
 USER spring
 
 COPY --from=build /app/target/*.jar app.jar
-
-COPY .env .env
 
 EXPOSE 8080
 
