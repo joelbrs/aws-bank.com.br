@@ -131,8 +131,9 @@ jobs:
 
       - name: Download Tag Definitions
         run: |
-          aws ecs describe-task-definition --task-definition ${{ secrets.BASE_TASK_DEFINITION }}-${{ matrix.module }} --query taskDefinition > task-definition.json
-
+          MODULE_NAME=$(basename "${{ matrix.module }}")
+          aws ecs describe-task-definition --task-definition ${{ secrets.BASE_TASK_DEFINITION }}-${MODULE_NAME} --query taskDefinition > task-definition.json
+      
       - name: Remover enableFaultInjection do task definition
         run: jq 'del(.enableFaultInjection)' task-definition.json > task-definition-clean.json
 
