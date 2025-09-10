@@ -6,7 +6,6 @@ COPY pom.xml .
 COPY src ./src
 COPY .mvn .mvn
 COPY mvnw ./
-COPY .env .env
 RUN ./mvnw dependency:go-offline
 
 RUN ./mvnw clean package -DskipTests 
@@ -19,6 +18,8 @@ RUN addgroup --system spring && adduser --system --ingroup spring spring
 USER spring
 
 COPY --from=build /app/target/*.jar app.jar
+
+COPY .env .env
 
 EXPOSE 8080
 
