@@ -119,7 +119,7 @@ jobs:
           DEV_IMAGE_TAG="development-${MODULE_NAME}-${APPLICATION_VERSION}"
           PROD_IMAGE_TAG="production-${MODULE_NAME}-${APPLICATION_VERSION}"
           if [ "${{ inputs.environment }}" = "development" ]; then
-            docker build -f ${{ matrix.module }}/docker/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$DEV_IMAGE_TAG $MODULE_NAME
+            docker build -f ${{ matrix.module }}/docker/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$DEV_IMAGE_TAG ${{ matrix.module }}
             docker push $ECR_REGISTRY/$ECR_REPOSITORY:$DEV_IMAGE_TAG
             echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$DEV_IMAGE_TAG" >> "$GITHUB_OUTPUT"
           elif [ "${{ inputs.environment }}" = "production" ]; then
