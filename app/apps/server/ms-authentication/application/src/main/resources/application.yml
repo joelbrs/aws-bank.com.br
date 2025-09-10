@@ -1,8 +1,45 @@
 spring:
   application:
     name: ms-authentication
+  cloud:
+    aws:
+      credentials:
+        access-key: ${AWS_ACCESS_KEY:test}
+        secret-key: ${AWS_SECRET_KEY:test}
+      region:
+        static: ${AWS_REGION:us-east-1}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      ssl:
+        enabled: true
+
+  cache:
+    redis:
+      time-to-live: 5m
 
 server:
   servlet:
-    context-path: ms-authentication
+    context-path: /ms-authentication
   port: 8080
+
+email:
+  from: ${BANK_NO_REPLY_EMAIL:noreply@bank.com.br}
+
+jwt:
+  secret: ${JWT_SECRET:mysecretkey}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  show-actuator: true
