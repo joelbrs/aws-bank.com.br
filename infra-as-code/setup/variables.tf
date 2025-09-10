@@ -33,3 +33,9 @@ variable "ms_authentication_project_name" {
     type        = string
     default     = "ms-authentication"
 }
+
+variable "cache_cluster_id" {
+    description = "The cache cluster ID"
+    type        = string
+    default     = "aws-bank-cache"
+}
