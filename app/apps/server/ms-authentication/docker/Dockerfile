@@ -14,8 +14,9 @@ WORKDIR /app
 RUN addgroup --system spring && adduser --system --ingroup spring spring
 USER spring
 
+COPY .env .env
 COPY --from=build /app/application/target/*.jar app.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "if [ -f .env ]; then export $(grep -v '^#' .env | xargs); fi; exec java -jar app.jar"]
