@@ -10,6 +10,7 @@ on:
 
 env:
   REPO_MODULES: 'app/apps/server/ms-authentication'
+  DOCKER_BUILDKIT: 1
 
 jobs:
   check_changes:
@@ -96,6 +97,16 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Generate .env file with secrets
+        run: |
+          echo "AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}" > .env
+          echo "AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}" >> .env
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
+          echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env
+          echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> .env
+          echo "BANK_NO_REPLY_EMAIL=${{ secrets.BANK_NO_REPLY_EMAIL }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
 
       - name: Build, tag, and push Docker image to Amazon ECR
         id: build-image
