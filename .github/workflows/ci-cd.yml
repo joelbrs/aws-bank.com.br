@@ -136,13 +136,16 @@ jobs:
       
       - name: Remover enableFaultInjection do task definition
         run: jq 'del(.enableFaultInjection)' task-definition.json > task-definition-clean.json
+        
+      - name: Set container name
+        run: echo "CONTAINER_NAME=${{ inputs.environment }}-$(basename '${{ matrix.module }}')" >> $GITHUB_ENV
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition-clean.json
-          container-name: ${{ inputs.environment }}-${{ matrix.module }}
+          container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ steps.build-image.outputs.image }}
 
       - name: Deploy Amazon ECS task definition
