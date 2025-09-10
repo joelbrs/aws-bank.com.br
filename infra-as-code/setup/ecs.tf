@@ -6,6 +6,8 @@ resource "aws_ecs_task_definition" "ms_authentication_task_definition" {
   memory                   = 1024 * 3
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
 
+  depends_on = [aws_cloudwatch_log_group.ecs_logs]
+
   container_definitions = jsonencode([
     {
       name      = local.ms_authentication_container_name
@@ -65,4 +67,9 @@ resource "aws_ecs_service" "ms_authentication_ecs_service" {
     container_name   = local.ms_authentication_container_name
     container_port   = 8080
   }
+}
+
+resource "aws_cloudwatch_log_group" "ecs_logs" {
+  name              = "/ecs/${var.environment}-${var.ms_authentication_project_name}"
+  retention_in_days = 7
 }
