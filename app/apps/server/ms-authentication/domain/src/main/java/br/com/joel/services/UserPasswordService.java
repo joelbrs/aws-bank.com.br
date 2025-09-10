@@ -20,6 +20,11 @@ public class UserPasswordService {
         userPasswordRepository.create(userPassword);
     }
 
+    public UserPassword getByTaxIdIfUserIsActive(String taxId) {
+        return userPasswordRepository.getByTaxIdIfUserIsActive(taxId)
+                .orElseThrow(() -> new BusinessException("User password not found or user is not active for taxId: " + taxId));
+    }
+
     private void validate(UserPassword userPassword) {
         if (userPassword.getActionsPassword().length() != 6) {
             throw new BusinessException("Invalid actions password");

@@ -2,6 +2,7 @@ package br.com.joel.application.presentation.dtos.authentication;
 
 import br.com.joel.domain.domain.User;
 import br.com.joel.domain.domain.UserPassword;
+import br.com.joel.exceptions.BusinessException;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -53,10 +54,10 @@ record UserPasswordDtoIn(
 ) {
     public void validate() {
         if (!loginPassword.equals(confirmLoginPassword)) {
-            throw new IllegalArgumentException("Login password do not match");
+            throw new BusinessException("Login password do not match");
         }
         if (!actionsPassword.equals(confirmActionsPassword)) {
-            throw new IllegalArgumentException("Actions password do not match");
+            throw new BusinessException("Actions password do not match");
         }
     }
 }
