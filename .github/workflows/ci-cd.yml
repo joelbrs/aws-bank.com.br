@@ -107,6 +107,7 @@ jobs:
           echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> .env
           echo "BANK_NO_REPLY_EMAIL=${{ secrets.BANK_NO_REPLY_EMAIL }}" >> .env
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+        working-directory: ${{ matrix.module }}
 
       - name: Build, tag, and push Docker image to Amazon ECR
         id: build-image
