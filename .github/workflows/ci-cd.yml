@@ -152,7 +152,7 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: ${{ secrets.BASE_ECS_SERVICE }}-${{ env.CONTAINER_NAME }}
+          service: ${{ inputs.environment }}-${{ env.CONTAINER_NAME }}
           cluster: ${{ secrets.ECS_CLUSTER }}
           wait-for-service-stability: true
 
