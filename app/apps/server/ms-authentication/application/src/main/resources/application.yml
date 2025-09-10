@@ -16,7 +16,7 @@ spring:
   data:
     redis:
       host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
+      port: ${REDIS_PORT:63795}
       ssl:
         enabled: true
 
@@ -28,7 +28,6 @@ server:
   servlet:
     context-path: /ms-authentication
   port: 8080
-  address: ${SERVER_ADDRESS:0.0.0.0}
 
 email:
   from: ${BANK_NO_REPLY_EMAIL:noreply@bank.com.br}
