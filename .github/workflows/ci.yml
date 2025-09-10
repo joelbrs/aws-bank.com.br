@@ -1,0 +1,67 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'hotfix/**'
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+env:
+  REPO_MODULES: 'app/apps/server/ms-authentication'
+
+jobs:
+  check_changes:
+    name: Detect Changed Modules 
+    runs-on: ubuntu-latest
+
+    outputs:
+      changed_dirs: ${{ steps.detect-changes.outputs.changed_dirs }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: detect-changes
+        run: |
+          dirs=()
+          for DIR in $REPO_MODULES; do
+            if git diff --name-only origin/main...HEAD | grep -q "^$DIR/"; then
+              dirs+=("\"$DIR\"")
+            fi
+          done
+          if [ ${#dirs[@]} -eq 0 ]; then
+            echo 'changed_dirs=[]' >> $GITHUB_OUTPUT
+          else
+            json="[$(IFS=,; echo "${dirs[*]}")]"
+            echo "changed_dirs=$json" >> $GITHUB_OUTPUT
+          fi
+
+  unit-tests:
+    name: Run Unit Tests for Changed Modules
+    needs: check_changes
+    runs-on: ubuntu-latest
+
+    if: ${{ fromJson(needs.check_changes.outputs.changed_dirs) != '[]' }}
+    strategy:
+      matrix:
+        module: ${{ fromJson(needs.check_changes.outputs.changed_dirs) }}
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Run Tests
+        run: mvn clean test
+        working-directory: ${{ matrix.module }}

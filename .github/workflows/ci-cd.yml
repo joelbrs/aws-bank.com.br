@@ -1,0 +1,155 @@
+name: CI/CD Pipeline
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Deployment environment (e.g., development, production)'
+        required: true
+        type: string
+
+env:
+  REPO_MODULES: 'app/apps/server/ms-authentication'
+
+jobs:
+  check_changes:
+    name: Detect Changed Modules 
+    runs-on: ubuntu-latest
+
+    outputs:
+      changed_dirs: ${{ steps.detect-changes.outputs.changed_dirs }}
+      
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: detect-changes
+        run: |
+          dirs=()
+          for DIR in $REPO_MODULES; do
+            if git diff --name-only origin/main...HEAD | grep -q "^$DIR/"; then
+              dirs+=("\"$DIR\"")
+            fi
+          done
+          if [ ${#dirs[@]} -eq 0 ]; then
+            echo 'changed_dirs=[]' >> $GITHUB_OUTPUT
+          else
+            json="[$(IFS=,; echo "${dirs[*]}")]"
+            echo "changed_dirs=$json" >> $GITHUB_OUTPUT
+          fi
+  
+  deploy:
+    name: Deploy Changed Modules
+    needs: check_changes
+    environment: ${{ inputs.environment }}
+
+    if: ${{ fromJson(needs.check_changes.outputs.changed_dirs) != '[]' }}
+
+    strategy:
+      matrix:
+        module: ${{ fromJson(needs.check_changes.outputs.changed_dirs) }}
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.8.3'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+
+      - name: Initialize Terraform
+        run: |
+          cd infra-as-code && terraform init \
+          -backend-config="bucket=${{ secrets.AWS_STATEFILE_S3_BUCKET }}" \
+          -backend-config="key=${{ inputs.environment }}/terraform.tfstate" \
+          -backend-config="region=${{ secrets.AWS_REGION }}" \
+          -backend-config="dynamodb_table=${{ secrets.AWS_LOCK_DYNAMODB_TABLE }}"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Build Java Application and Get Application Version and Name
+        run: |
+          mvn clean package -DskipTests
+          APPLICATION_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f pom.xml)
+          echo "APPLICATION_VERSION=$APPLICATION_VERSION" >> $GITHUB_ENV
+        working-directory: ${{ matrix.module }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push Docker image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
+        run: |
+          MODULE_NAME=$(basename "${{ matrix.module }}")
+          DEV_IMAGE_TAG="development-${MODULE_NAME}:${APPLICATION_VERSION}"
+          PROD_IMAGE_TAG="production-${MODULE_NAME}:${APPLICATION_VERSION}"
+          if [ "${{ inputs.environment }}" = "development" ]; then
+            docker build -f ${{ matrix.module }}/docker/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$DEV_IMAGE_TAG ${{ matrix.module }}
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$DEV_IMAGE_TAG
+            echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$DEV_IMAGE_TAG" >> "$GITHUB_OUTPUT"
+          elif [ "${{ inputs.environment }}" = "production" ]; then
+            docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$DEV_IMAGE_TAG
+            docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$DEV_IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$PROD_IMAGE_TAG
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$PROD_IMAGE_TAG
+            echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$PROD_IMAGE_TAG" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download Tag Definitions
+        run: |
+          aws ecs describe-task-definition --task-definition ${{ secrets.BASE_TASK_DEFINITION }}-${{ matrix.module }} --query taskDefinition > task-definition.json
+
+      - name: Remover enableFaultInjection do task definition
+        run: jq 'del(.enableFaultInjection)' task-definition.json > task-definition-clean.json
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition-clean.json
+          container-name: ${{ inputs.environment }}-${{ matrix.module }}
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ secrets.BASE_ECS_SERVICE }}-${{ matrix.module }}
+          cluster: ${{ secrets.ECS_CLUSTER }}
+          wait-for-service-stability: true
+
+      - name: Plan Terraform changes
+        run: |
+          cd infra-as-code && \
+          terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }} && \
+          terraform plan \
+            -var="aws_region=${{ secrets.AWS_REGION }}" \
+            -out="${{ inputs.environment }}.tfplan"
+
+      - name: Apply Terraform changes
+        run: |
+          cd infra-as-code && \
+          terraform workspace select ${{ inputs.environment }}
+          terraform apply -auto-approve "${{ inputs.environment }}.tfplan"
