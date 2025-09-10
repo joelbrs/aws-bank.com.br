@@ -34,6 +34,10 @@ public class CryptoService {
         return cryptoPort.hash(value);
     }
 
+    public boolean verifyHash(String value, String hash) {
+        return cryptoPort.verify(value, hash);
+    }
+
     private SecretKeySpec getKey(String secret) throws Exception {
         MessageDigest sha = MessageDigest.getInstance("SHA-256");
         byte[] key = sha.digest(secret.getBytes(StandardCharsets.UTF_8));

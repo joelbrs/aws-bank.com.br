@@ -1,5 +1,6 @@
 package br.com.joel.application.config;
 
+import br.com.joel.application.infrastructure.services.JwtAuthenticationService;
 import br.com.joel.application.infrastructure.services.TOTPTransactionalService;
 import br.com.joel.application.infrastructure.services.UserTransactionalService;
 import br.com.joel.ports.EmailPort;
@@ -58,10 +59,17 @@ public class ServiceConfig {
     @Bean(name = AUTHENTICATION_SERVICE)
     public AuthenticationService authenticationService(
             UserService userService,
-            CacheRepository cacheRepository,
+            UserPasswordService userPasswordService,
             CryptoService cryptoService,
+            CacheRepository cacheRepository,
             @Value("${jwt.secret}") String jwtSecret
     ) {
-        return new AuthenticationService(userService, cacheRepository, cryptoService, jwtSecret);
+        return new JwtAuthenticationService(
+                userService,
+                userPasswordService,
+                cryptoService,
+                cacheRepository,
+                jwtSecret
+        );
     }
 }

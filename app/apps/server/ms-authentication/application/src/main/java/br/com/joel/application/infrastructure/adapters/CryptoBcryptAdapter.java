@@ -13,4 +13,9 @@ public class CryptoBcryptAdapter implements CryptoPort {
     public String hash(String value) {
         return bCryptPasswordEncoder.encode(value);
     }
+
+    @Override
+    public boolean verify(String value, String secret) {
+        return bCryptPasswordEncoder.matches(value, secret);
+    }
 }

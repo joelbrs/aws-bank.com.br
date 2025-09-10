@@ -55,4 +55,9 @@ public class UserService {
             throw new ExternalServiceException("Error confirming user...", e);
         }
     }
+
+    public User getByTaxId(String taxId) {
+        return userRepository.getByTaxId(taxId)
+                .orElseThrow(() -> new IllegalArgumentException("User with cpf " + taxId + " not found."));
+    }
 }

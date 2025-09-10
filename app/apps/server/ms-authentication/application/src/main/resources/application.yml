@@ -34,3 +34,12 @@ email:
 
 jwt:
   secret: ${JWT_SECRET:mysecretkey}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  show-actuator: true

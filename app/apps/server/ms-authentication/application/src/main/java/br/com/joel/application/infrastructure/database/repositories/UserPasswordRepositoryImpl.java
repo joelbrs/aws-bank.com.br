@@ -8,6 +8,8 @@ import br.com.joel.domain.domain.UserPassword;
 import br.com.joel.ports.database.UserPasswordRepository;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Optional;
+
 @RequiredArgsConstructor
 public class UserPasswordRepositoryImpl implements UserPasswordRepository {
 
@@ -19,12 +21,26 @@ public class UserPasswordRepositoryImpl implements UserPasswordRepository {
         jpaUserPasswordRepository.save(this.toJpaDomain(userPassword));
     }
 
+    @Override
+    public Optional<UserPassword> getByTaxIdIfUserIsActive(String taxId) {
+        Optional<JpaUserPasswordModel> userPassword = jpaUserPasswordRepository.getByTaxIdIfUserIsActive(taxId);
+        return userPassword.map(this::toDomain);
+    }
+
     private JpaUserPasswordModel toJpaDomain(UserPassword userPassword) {
         JpaUserModel user = jpaUserRepository.findById(userPassword.getTaxId())
                 .orElseThrow(() -> new IllegalArgumentException("User was not found"));
 
         return JpaUserPasswordModel.builder()
                 .user(user)
+                .loginPassword(userPassword.getLoginPassword())
+                .actionsPassword(userPassword.getActionsPassword())
+                .build();
+    }
+
+    private UserPassword toDomain(JpaUserPasswordModel userPassword) {
+        return UserPassword.builder()
+                .taxId(userPassword.getUser().getTaxId())
                 .loginPassword(userPassword.getLoginPassword())
                 .actionsPassword(userPassword.getActionsPassword())
                 .build();

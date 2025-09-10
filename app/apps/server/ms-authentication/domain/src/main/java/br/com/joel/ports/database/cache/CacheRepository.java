@@ -1,7 +1,7 @@
 package br.com.joel.ports.database.cache;
 
 public interface CacheRepository {
-    void save(String taxId, String code);
-    String get(String taxId);
-    void delete(String taxId);
+    void save(String key, String value);
+    String get(String key);
+    void delete(String key);
 }
