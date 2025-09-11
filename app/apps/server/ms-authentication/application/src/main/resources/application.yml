@@ -28,6 +28,7 @@ server:
   servlet:
     context-path: /ms-authentication
   port: 8080
+  address: ${SERVER_ADDRESS:0.0.0.0}
 
 email:
   from: ${BANK_NO_REPLY_EMAIL:noreply@bank.com.br}
