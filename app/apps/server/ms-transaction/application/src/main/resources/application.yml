@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: ms-transaction
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+server:
+  servlet:
+    context-path: /ms-authentication
+  port: 8080
+  address: ${SERVER_ADDRESS:0.0.0.0}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  show-actuator: true
