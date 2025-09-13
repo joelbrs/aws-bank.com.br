@@ -2,6 +2,14 @@ spring:
   application:
     name: ms-transaction
 
+  cloud:
+    aws:
+      credentials:
+        access-key: ${AWS_ACCESS_KEY:test}
+        secret-key: ${AWS_SECRET_KEY:test}
+      region:
+        static: ${AWS_REGION:us-east-1}
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -12,6 +20,11 @@ http:
     authorizer:
       url: https://util.devi.tools
       path: /api/v2
+
+async:
+  queue:
+    transaction:
+      name: ${SQS_TRANSACTION_PROCESS_QUEUE:MQ.TRANSACTION.PROCESS}
 
 server:
   servlet:
