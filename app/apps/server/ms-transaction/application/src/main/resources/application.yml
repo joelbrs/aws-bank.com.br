@@ -9,7 +9,7 @@ spring:
 
 server:
   servlet:
-    context-path: /ms-authentication
+    context-path: /ms-transaction
   port: 8080
   address: ${SERVER_ADDRESS:0.0.0.0}
 
