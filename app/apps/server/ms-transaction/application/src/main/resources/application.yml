@@ -7,6 +7,12 @@ spring:
       ddl-auto: update
     show-sql: true
 
+http:
+  client:
+    authorizer:
+      url: https://util.devi.tools
+      path: /api/v2
+
 server:
   servlet:
     context-path: /ms-transaction
