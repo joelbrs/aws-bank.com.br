@@ -1,6 +1,7 @@
 package br.com.joel.services;
 
 import br.com.joel.domain.domain.Transaction;
+import br.com.joel.domain.domain.TransactionExtractPayload;
 import br.com.joel.domain.domain.enums.TransactionStatus;
 import br.com.joel.exceptions.BusinessException;
 import br.com.joel.exceptions.ExternalServiceException;
@@ -87,6 +88,10 @@ public class TransactionService {
         } finally {
             transactionRepository.save(transaction);
         }
+    }
+
+    public void requestsExtract(TransactionExtractPayload transactionExtractPayload) {
+        transactionEventPort.publishTransactionExtractRequest(transactionExtractPayload);
     }
 
     private void idempotencyCheck(String idempotencyKey) {
