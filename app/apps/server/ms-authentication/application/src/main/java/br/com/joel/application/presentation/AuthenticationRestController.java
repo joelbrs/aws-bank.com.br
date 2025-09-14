@@ -21,7 +21,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/authentication")
-public class AuthenticationController {
+public class AuthenticationRestController {
 
     private final AuthenticationService authenticationService;
 
@@ -46,7 +46,7 @@ public class AuthenticationController {
     @PostMapping("/v1/refresh-token")
     @ResponseStatus(HttpStatus.OK)
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) {
-        this.defineCookies(response, authenticationService.refreshToken(this.getRefreshToken(request)));
+        this.defineCookies(response, authenticationService.refreshToken(this.getToken(request, TokenType.REFRESH_TOKEN)));
     }
 
     @PostMapping("v1/logout")
@@ -56,6 +56,23 @@ public class AuthenticationController {
                 .clearCookies(List.of(TokenType.ACCESS_TOKEN.getCookieName(), TokenType.REFRESH_TOKEN.getCookieName()));
 
         cookies.forEach(response::addCookie);
+    }
+
+    @PostMapping("/v1/sign-in-actions")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void signInActions(@RequestParam String taxId, @RequestParam String actionsPassword, HttpServletResponse response) {
+        String actionsToken = authenticationService.signInActions(taxId, actionsPassword);
+
+        Cookie actionsTokenCookie =
+                CookiesUtils.generateHttpOnlyCookie(TokenType.ACTIONS_TOKEN.getCookieName(), actionsToken, this.getExpiration(actionsToken));
+
+        response.addCookie(actionsTokenCookie);
+    }
+
+    @PostMapping("/v1/validate-token")
+    @ResponseStatus(HttpStatus.OK)
+    public Boolean validateToken(@RequestParam TokenType tokenType, HttpServletRequest request) {
+        return authenticationService.isTokenValid(this.getToken(request, tokenType), tokenType);
     }
 
     private void defineCookies(HttpServletResponse response, Token token) {
@@ -76,10 +93,10 @@ public class AuthenticationController {
         return (int) ((authenticationService.getExpiration(token).getTime() - System.currentTimeMillis()) / 1000);
     }
 
-    private String getRefreshToken(HttpServletRequest request) {
+    private String getToken(HttpServletRequest request, TokenType tokenType) {
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
-                if (cookie.getName().equals(TokenType.REFRESH_TOKEN.getCookieName())) {
+                if (cookie.getName().equals(tokenType.getCookieName())) {
                     return cookie.getValue();
                 }
             }

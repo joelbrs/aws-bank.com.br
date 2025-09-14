@@ -62,14 +62,16 @@ public class ServiceConfig {
             UserPasswordService userPasswordService,
             CryptoService cryptoService,
             CacheRepository cacheRepository,
-            @Value("${jwt.secret}") String jwtSecret
+            @Value("${jwt.secret}") String jwtSecret,
+            AccountService accountService
     ) {
         return new JwtAuthenticationService(
                 userService,
                 userPasswordService,
                 cryptoService,
                 cacheRepository,
-                jwtSecret
+                jwtSecret,
+                accountService
         );
     }
 }

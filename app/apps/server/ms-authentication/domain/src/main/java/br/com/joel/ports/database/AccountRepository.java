@@ -4,4 +4,6 @@ import br.com.joel.domain.domain.Account;
 
 public interface AccountRepository {
     void create(Account account);
+    Account findByUserTaxId(String userTaxId);
+    Account getById(Long accountId);
 }

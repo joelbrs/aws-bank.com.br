@@ -4,10 +4,7 @@ import br.com.joel.domain.domain.Token;
 import br.com.joel.domain.domain.enums.TokenType;
 import br.com.joel.exceptions.ExternalServiceException;
 import br.com.joel.ports.database.cache.CacheRepository;
-import br.com.joel.services.AuthenticationService;
-import br.com.joel.services.CryptoService;
-import br.com.joel.services.UserPasswordService;
-import br.com.joel.services.UserService;
+import br.com.joel.services.*;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -26,8 +23,15 @@ public class JwtAuthenticationService extends AuthenticationService {
     private final CryptoService cryptoService;
     private final String jwtSecret;
 
-    public JwtAuthenticationService(UserService userService, UserPasswordService userPasswordService, CryptoService cryptoService, CacheRepository cacheRepository, String jwtSecret) {
-        super(userService, userPasswordService, cryptoService, cacheRepository, jwtSecret);
+    public JwtAuthenticationService(
+            UserService userService,
+            UserPasswordService userPasswordService,
+            CryptoService cryptoService,
+            CacheRepository cacheRepository,
+            String jwtSecret,
+            AccountService accountService
+    ) {
+        super(userService, userPasswordService, cryptoService, cacheRepository, jwtSecret, accountService);
         this.cryptoService = cryptoService;
         this.jwtSecret = jwtSecret;
     }
@@ -44,6 +48,11 @@ public class JwtAuthenticationService extends AuthenticationService {
     }
 
     @Override
+    protected String generateActionsToken(String username) {
+        return this.generateToken(username, TokenType.ACTIONS_TOKEN);
+    }
+
+    @Override
     public String getUsername(String token) {
         String encryptedCpf = Jwts.parserBuilder()
                 .setSigningKey(this.getSignKey())
@@ -55,8 +64,8 @@ public class JwtAuthenticationService extends AuthenticationService {
         try {
             return cryptoService.decrypt(encryptedCpf, jwtSecret);
         } catch (Exception e) {
-            log.error("[ERROR]: Error decrypting CPF from token", e);
-            throw new RuntimeException("Error decrypting CPF from token", e);
+            log.error("[ERROR]: Error decrypting Username from token", e);
+            throw new RuntimeException("Error decrypting Username from token", e);
         }
     }
 
@@ -71,7 +80,7 @@ public class JwtAuthenticationService extends AuthenticationService {
         return claims.getExpiration();
     }
 
-    private String generateToken(String cpf, TokenType tokenType) {
+    private String generateToken(String username, TokenType tokenType) {
         try {
             Map<String, Object> claims = Map.of(
                     "type", tokenType.getClaimName()
@@ -79,14 +88,14 @@ public class JwtAuthenticationService extends AuthenticationService {
 
             return Jwts.builder()
                     .setClaims(claims)
-                    .setSubject(cryptoService.encrypt(cpf, jwtSecret))
+                    .setSubject(cryptoService.encrypt(username, jwtSecret))
                     .setIssuedAt(Date.from(Instant.now()))
                     .setExpiration(Date.from(Instant.now().plusSeconds(tokenType.getExpiration())))
                     .signWith(this.getSignKey(), SignatureAlgorithm.HS256)
                     .compact();
         } catch (Exception e) {
-            log.error("[ERROR]: Error generating {} for CPF {}", tokenType.name(), cpf, e);
-            throw new ExternalServiceException("Error generating " + tokenType.name() + " for CPF " + cpf, e);
+            log.error("[ERROR]: Error generating {} for username {}", tokenType.name(), username, e);
+            throw new ExternalServiceException("Error generating " + tokenType.name() + " for username " + username, e);
         }
     }
 

@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum TokenType {
     ACCESS_TOKEN("BANK.COM.BR.ACCESS.TOKEN", 60 * 15, "access"),
-    REFRESH_TOKEN("BANK.COM.BR.REFRESH.TOKEN", 60 * 60 * 24 * 7, "refresh");
+    REFRESH_TOKEN("BANK.COM.BR.REFRESH.TOKEN", 60 * 60 * 24 * 7, "refresh"),
+    ACTIONS_TOKEN("BANK.COM.BANK.ACTIONS.TOKEN", 60 * 5, "actions");
 
     private final String cookieName;
     private final Integer expiration;

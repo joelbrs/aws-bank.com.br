@@ -12,4 +12,12 @@ public class AccountService {
     public void createAccount(String userTaxId) {
         accountRepository.create(Account.createNewAccount(userTaxId));
     }
+
+    public Account getByUserTaxId(String userTaxId) {
+        return accountRepository.findByUserTaxId(userTaxId);
+    }
+
+    public Account getById(Long accountId) {
+        return accountRepository.getById(accountId);
+    }
 }

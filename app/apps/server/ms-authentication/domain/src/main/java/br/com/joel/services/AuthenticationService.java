@@ -1,5 +1,6 @@
 package br.com.joel.services;
 
+import br.com.joel.domain.domain.Account;
 import br.com.joel.domain.domain.Token;
 import br.com.joel.domain.domain.User;
 import br.com.joel.domain.domain.UserPassword;
@@ -21,8 +22,10 @@ public abstract class AuthenticationService {
     private final CryptoService cryptoService;
     private final CacheRepository cacheRepository;
     private final String jwtSecret;
+    private final AccountService accountService;
 
     protected abstract Token generateBothTokens(String username);
+    protected abstract String generateActionsToken(String username);
 
     public abstract String getUsername(String token);
     public abstract Date getExpiration(String token);
@@ -51,6 +54,22 @@ public abstract class AuthenticationService {
         }
     }
 
+    public String signInActions(String taxId, String actionsPassword) {
+        UserPassword userPassword = userPasswordService.getByTaxIdIfUserIsActive(this.encryptTaxId(taxId));
+
+        if (!cryptoService.verifyHash(actionsPassword, userPassword.getActionsPassword())) {
+            throw new BusinessException("Invalid actions password.");
+        }
+
+        try {
+            Account account = accountService.getByUserTaxId(taxId);
+            return this.generateActionsToken(account.getAccountNumber().toString());
+        } catch (Exception e) {
+            log.error("[ERROR] Exception when signing with actions password in: {}", e.getMessage());
+            throw new ExternalServiceException("Error signing in...", e);
+        }
+    }
+
     public Token refreshToken(String currentRefreshToken) {
         String username = this.getUsername(currentRefreshToken);
         this.validateRefreshToken(username, currentRefreshToken);
@@ -70,9 +89,14 @@ public abstract class AuthenticationService {
         }
     }
 
-    public boolean isTokenValid(String cpf, String token) {
+    public boolean isTokenValid(String token, TokenType tokenType) {
+        String username = this.getUsername(token);
         try {
-            userService.getByTaxId(this.encryptTaxId(cpf));
+            if (TokenType.ACCESS_TOKEN.equals(tokenType)) {
+                userService.getByTaxId(this.encryptTaxId(username));
+            } else if (TokenType.ACTIONS_TOKEN.equals(tokenType)) {
+                accountService.getById(Long.valueOf(username));
+            }
         } catch (Exception e) {
             throw new BusinessException("[ERROR]: Username not found.", e);
         }

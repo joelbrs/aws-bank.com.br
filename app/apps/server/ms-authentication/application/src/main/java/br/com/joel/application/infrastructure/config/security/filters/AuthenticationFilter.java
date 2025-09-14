@@ -43,7 +43,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            boolean isTokenValid = authenticationService.isTokenValid(username, token);
+            boolean isTokenValid = authenticationService.isTokenValid(token, TokenType.ACCESS_TOKEN);
 
             if (isTokenValid) {
                 UsernamePasswordAuthenticationToken authToken =
