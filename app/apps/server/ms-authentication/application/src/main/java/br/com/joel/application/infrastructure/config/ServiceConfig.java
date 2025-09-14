@@ -1,4 +1,4 @@
-package br.com.joel.application.config;
+package br.com.joel.application.infrastructure.config;
 
 import br.com.joel.application.infrastructure.services.JwtAuthenticationService;
 import br.com.joel.application.infrastructure.services.TOTPTransactionalService;

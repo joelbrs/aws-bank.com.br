@@ -1,4 +1,4 @@
-package br.com.joel.application.config.properties;
+package br.com.joel.application.infrastructure.config.properties;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

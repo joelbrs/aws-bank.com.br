@@ -1,6 +1,6 @@
-package br.com.joel.application.config;
+package br.com.joel.application.infrastructure.config;
 
-import br.com.joel.application.config.security.filters.AuthenticationFilter;
+import br.com.joel.application.infrastructure.config.security.filters.AuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

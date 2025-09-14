@@ -1,4 +1,4 @@
-package br.com.joel.application.config;
+package br.com.joel.application.infrastructure.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

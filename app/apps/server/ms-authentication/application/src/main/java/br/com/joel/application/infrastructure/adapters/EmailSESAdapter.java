@@ -1,6 +1,6 @@
 package br.com.joel.application.infrastructure.adapters;
 
-import br.com.joel.application.config.properties.SesProperties;
+import br.com.joel.application.infrastructure.config.properties.SesProperties;
 import br.com.joel.ports.EmailPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

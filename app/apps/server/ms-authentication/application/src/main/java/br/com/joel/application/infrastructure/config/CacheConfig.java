@@ -1,4 +1,4 @@
-package br.com.joel.application.config;
+package br.com.joel.application.infrastructure.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;

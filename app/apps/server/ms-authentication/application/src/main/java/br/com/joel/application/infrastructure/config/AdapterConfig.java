@@ -1,6 +1,6 @@
-package br.com.joel.application.config;
+package br.com.joel.application.infrastructure.config;
 
-import br.com.joel.application.config.properties.SesProperties;
+import br.com.joel.application.infrastructure.config.properties.SesProperties;
 import br.com.joel.application.infrastructure.adapters.CryptoBcryptAdapter;
 import br.com.joel.application.infrastructure.adapters.EmailSESAdapter;
 import br.com.joel.ports.EmailPort;

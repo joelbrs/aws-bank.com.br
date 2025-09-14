@@ -1,4 +1,4 @@
-package br.com.joel.application.config.security.filters;
+package br.com.joel.application.infrastructure.config.security.filters;
 
 import br.com.joel.domain.domain.enums.TokenType;
 import br.com.joel.services.AuthenticationService;

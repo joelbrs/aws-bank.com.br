@@ -1,6 +1,6 @@
 package br.com.joel.application.infrastructure.adapters;
 
-import br.com.joel.application.config.properties.SesProperties;
+import br.com.joel.application.infrastructure.config.properties.SesProperties;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
