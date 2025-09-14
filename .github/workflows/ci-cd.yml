@@ -9,7 +9,7 @@ on:
         type: string
 
 env:
-  REPO_MODULES: 'app/apps/server/ms-authentication'
+  REPO_MODULES: 'app/apps/server/ms-authentication app/apps/server/ms-transaction'
   DOCKER_BUILDKIT: 1
 
 jobs:
