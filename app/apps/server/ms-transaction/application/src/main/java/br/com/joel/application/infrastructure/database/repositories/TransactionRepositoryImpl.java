@@ -2,10 +2,13 @@ package br.com.joel.application.infrastructure.database.repositories;
 
 import br.com.joel.application.infrastructure.database.domain.JpaTransactionModel;
 import br.com.joel.application.infrastructure.database.repositories.framework.JpaTransactionRepository;
+import br.com.joel.domain.domain.MonthlyTransactionMetrics;
 import br.com.joel.domain.domain.Transaction;
 import br.com.joel.domain.domain.TransactionDetails;
 import br.com.joel.ports.database.TransactionRepository;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 public class TransactionRepositoryImpl implements TransactionRepository {
@@ -30,6 +33,11 @@ public class TransactionRepositoryImpl implements TransactionRepository {
     @Override
     public TransactionDetails getTransactionDetails(String idempontencyKey) {
         return jpaTransactionRepository.getTransactionDetails(idempontencyKey);
+    }
+
+    @Override
+    public List<MonthlyTransactionMetrics> getMonthlyTransactionMetrics(Long accountId) {
+        return jpaTransactionRepository.getMonthlyMetrics(accountId);
     }
 
     private JpaTransactionModel toJpaDomain(Transaction transaction) {

@@ -2,6 +2,7 @@ package br.com.joel.application.presentation.rest;
 
 import br.com.joel.application.presentation.rest.dtos.transaction.CreateTransactionDtoIn;
 import br.com.joel.application.presentation.rest.dtos.transaction.RequestTransactionExtractDtoIn;
+import br.com.joel.domain.domain.MonthlyTransactionMetrics;
 import br.com.joel.domain.domain.TransactionDetails;
 import br.com.joel.services.TransactionService;
 import jakarta.validation.Valid;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -50,5 +52,11 @@ public class TransactionRestController {
     @ResponseStatus(HttpStatus.OK)
     public TransactionDetails getTransactionDetails(@PathVariable String idempotencyKey) {
         return transactionService.getTransactionDetails(idempotencyKey);
+    }
+
+    @GetMapping("/v1/metrics/{accountId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<MonthlyTransactionMetrics> getMonthlyTransactionMetrics(@PathVariable Long accountId) {
+        return transactionService.getMonthlyTransactionMetrics(accountId);
     }
 }
