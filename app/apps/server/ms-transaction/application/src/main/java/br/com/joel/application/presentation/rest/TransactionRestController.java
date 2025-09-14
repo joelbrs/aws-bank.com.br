@@ -1,6 +1,7 @@
 package br.com.joel.application.presentation.rest;
 
 import br.com.joel.application.presentation.rest.dtos.transaction.CreateTransactionDtoIn;
+import br.com.joel.application.presentation.rest.dtos.transaction.RequestTransactionExtractDtoIn;
 import br.com.joel.services.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,5 +37,11 @@ public class TransactionRestController {
                 amount,
                 timestamp
         );
+    }
+
+    @PostMapping("/v1/extract")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createTransactionExtractRequest(@RequestBody @Valid RequestTransactionExtractDtoIn dto) {
+        transactionService.requestsExtract(dto.toDomain());
     }
 }

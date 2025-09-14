@@ -25,6 +25,8 @@ async:
   queue:
     transaction:
       name: ${SQS_TRANSACTION_PROCESS_QUEUE:MQ.TRANSACTION.PROCESS}
+    extract:
+      name: ${SQS_EXTRACT_GENERATE_QUEUE:MQ.EXTRACT.GENERATE}
 
 server:
   servlet:

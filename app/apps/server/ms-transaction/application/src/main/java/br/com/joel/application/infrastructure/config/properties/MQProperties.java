@@ -10,6 +10,7 @@ import java.util.Map;
 public class MQProperties {
 
     public static final String TRANSACTION_QUEUE = "transaction";
+    public static final String TRANSACTION_EXTRACT_QUEUE = "extract";
 
     private Map<String, QueueProperties> queues;
 
