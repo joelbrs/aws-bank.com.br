@@ -2,6 +2,7 @@ package br.com.joel.application.presentation.rest;
 
 import br.com.joel.application.presentation.rest.dtos.transaction.CreateTransactionDtoIn;
 import br.com.joel.application.presentation.rest.dtos.transaction.RequestTransactionExtractDtoIn;
+import br.com.joel.domain.domain.TransactionDetails;
 import br.com.joel.services.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -43,5 +44,11 @@ public class TransactionRestController {
     @ResponseStatus(HttpStatus.CREATED)
     public void createTransactionExtractRequest(@RequestBody @Valid RequestTransactionExtractDtoIn dto) {
         transactionService.requestsExtract(dto.toDomain());
+    }
+
+    @GetMapping("/v1/{idempotencyKey}")
+    @ResponseStatus(HttpStatus.OK)
+    public TransactionDetails getTransactionDetails(@PathVariable String idempotencyKey) {
+        return transactionService.getTransactionDetails(idempotencyKey);
     }
 }

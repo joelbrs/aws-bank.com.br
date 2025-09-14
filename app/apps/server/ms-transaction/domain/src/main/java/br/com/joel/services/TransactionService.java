@@ -1,6 +1,7 @@
 package br.com.joel.services;
 
 import br.com.joel.domain.domain.Transaction;
+import br.com.joel.domain.domain.TransactionDetails;
 import br.com.joel.domain.domain.TransactionExtractPayload;
 import br.com.joel.domain.domain.enums.TransactionStatus;
 import br.com.joel.exceptions.BusinessException;
@@ -59,14 +60,11 @@ public class TransactionService {
             throw new IllegalArgumentException("All parameters must be provided and non-null");
         }
 
-        String recipientAccountHash = cryptoPort.hash(recipientAccountId.toString());
-        String senderAccountHash = cryptoPort.hash(senderAccountId.toString());
-
         return String.format("%s-%s-%s-%s",
-                senderAccountHash,
-                recipientAccountHash,
-                amount,
-                timestamp
+                cryptoPort.hash(recipientAccountId.toString()),
+                cryptoPort.hash(senderAccountId.toString()),
+                cryptoPort.hash(amount.toString()),
+                cryptoPort.hash(timestamp.toString())
         );
     }
 
@@ -92,6 +90,10 @@ public class TransactionService {
 
     public void requestsExtract(TransactionExtractPayload transactionExtractPayload) {
         transactionEventPort.publishTransactionExtractRequest(transactionExtractPayload);
+    }
+
+    public TransactionDetails getTransactionDetails(String idempotencyKey) {
+        return transactionRepository.getTransactionDetails(idempotencyKey);
     }
 
     private void idempotencyCheck(String idempotencyKey) {
