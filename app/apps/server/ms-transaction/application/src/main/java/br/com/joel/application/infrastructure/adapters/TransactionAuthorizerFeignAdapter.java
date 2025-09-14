@@ -1,6 +1,7 @@
 package br.com.joel.application.infrastructure.adapters;
 
 import br.com.joel.application.infrastructure.http.client.FeignTransactionAuthorizerHttpClient;
+import br.com.joel.exceptions.ExternalServiceException;
 import br.com.joel.ports.TransactionAuthorizerPort;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +16,7 @@ public class TransactionAuthorizerFeignAdapter implements TransactionAuthorizerP
         try {
             feignTransactionAuthorizerHttpClient.authorize();
         } catch (FeignException e) {
-            //TODO: add personalized exception
-            throw new RuntimeException(e);
+            throw new ExternalServiceException("Transaction authorizer failed.", e);
         }
     }
 }

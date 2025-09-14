@@ -2,6 +2,8 @@ package br.com.joel.services;
 
 import br.com.joel.domain.domain.Transaction;
 import br.com.joel.domain.domain.enums.TransactionStatus;
+import br.com.joel.exceptions.BusinessException;
+import br.com.joel.exceptions.ExternalServiceException;
 import br.com.joel.ports.CryptoPort;
 import br.com.joel.ports.TransactionAuthorizerPort;
 import br.com.joel.ports.TransactionEventPort;
@@ -32,6 +34,7 @@ public class TransactionService {
 
             this.idempotencyCheck(transaction.getIdempotencyKey());
 
+            transaction.updateProvisionalBalanceBeforeTransaction();
             transaction.setUpdatedAt(transaction.getCreatedAt());
             transaction.setStatus(TransactionStatus.PENDING_PROCESSING);
 
@@ -41,10 +44,12 @@ public class TransactionService {
             log.info("Transaction created successfully from account: {}", transaction.getRecipientAccountId());
 
             return transaction;
-        } catch (Exception e) {
-            //TODO: personalized exception
+        } catch (BusinessException e) {
             log.error("Error processing transaction from account: {}", transaction.getRecipientAccountId(), e);
-            throw new RuntimeException("Error processing transaction from account: " + transaction.getRecipientAccountId(), e);
+            throw new BusinessException("Error processing transaction from account: " + transaction.getRecipientAccountId(), e);
+        } catch (Exception e) {
+            log.error("Unexpected error processing transaction from account: {}", transaction.getRecipientAccountId(), e);
+            throw new ExternalServiceException("Unexpected error processing transaction from account: " + transaction.getRecipientAccountId(), e);
         }
     }
 
@@ -75,10 +80,10 @@ public class TransactionService {
 
             log.info("Transaction event processed successfully for transaction ID: {}", transaction.getIdempotencyKey());
         } catch (Exception e) {
+            transaction.restoreProvisionalBalance();
             transaction.setStatus(TransactionStatus.FAILED);
-            //TODO: personalized exception
             log.error("Error processing transaction event for transaction ID: {}", transaction.getIdempotencyKey(), e);
-            throw new RuntimeException("Error processing transaction event for transaction ID: " + transaction.getIdempotencyKey(), e);
+            throw new ExternalServiceException("Error processing transaction event for transaction ID: " + transaction.getIdempotencyKey(), e);
         } finally {
             transactionRepository.save(transaction);
         }
@@ -89,7 +94,7 @@ public class TransactionService {
 
         if (idempotencyKeyExists) {
             log.error("Idempotency key already exists");
-            throw new IllegalArgumentException(String.format("Idempotency key %s exists", idempotencyKey));
+            throw new BusinessException(String.format("Idempotency key %s exists", idempotencyKey));
         }
         log.info("Idempotency key is valid");
     }

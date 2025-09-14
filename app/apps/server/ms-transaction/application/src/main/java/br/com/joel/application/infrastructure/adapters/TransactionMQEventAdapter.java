@@ -2,6 +2,7 @@ package br.com.joel.application.infrastructure.adapters;
 
 import br.com.joel.application.infrastructure.config.properties.MQProperties;
 import br.com.joel.domain.domain.Transaction;
+import br.com.joel.exceptions.ExternalServiceException;
 import br.com.joel.ports.TransactionEventPort;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.awspring.cloud.sqs.operations.SqsTemplate;
@@ -20,8 +21,7 @@ public class TransactionMQEventAdapter implements TransactionEventPort {
         try {
             sqsTemplate.send(mqProperties.getQueues().get(MQProperties.TRANSACTION_QUEUE).getName(), OBJECT_MAPPER.writeValueAsString(transaction));
         } catch (Exception e) {
-            //TODO: add personalized exception
-            throw new RuntimeException("Failed to publish transaction event to SQS", e);
+            throw new ExternalServiceException("Failed to publish transaction event to SQS", e);
         }
     }
 }
