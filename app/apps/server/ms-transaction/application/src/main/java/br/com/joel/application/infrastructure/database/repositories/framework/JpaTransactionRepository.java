@@ -1,11 +1,14 @@
 package br.com.joel.application.infrastructure.database.repositories.framework;
 
 import br.com.joel.application.infrastructure.database.domain.JpaTransactionModel;
+import br.com.joel.domain.domain.MonthlyTransactionMetrics;
 import br.com.joel.domain.domain.Transaction;
 import br.com.joel.domain.domain.TransactionDetails;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface JpaTransactionRepository extends JpaRepository<JpaTransactionModel, String> {
@@ -33,4 +36,19 @@ public interface JpaTransactionRepository extends JpaRepository<JpaTransactionMo
             "FROM JpaTransactionModel t " +
             "WHERE t.idempotencyKey = :idempotencyKey")
     TransactionDetails getTransactionDetails(String idempotencyKey);
+
+    @Query("""
+        SELECT new br.com.joel.domain.domain.MonthlyTransactionMetrics(
+            MONTH(t.createdAt),
+            SUM(CASE WHEN t.senderAccountId = :accountId THEN 1 ELSE 0 END),
+            SUM(CASE WHEN t.recipientAccountId = :accountId THEN 1 ELSE 0 END),
+            SUM(CASE WHEN t.senderAccountId = :accountId OR t.recipientAccountId = :accountId THEN 1 ELSE 0 END)
+        )
+        FROM JpaTransactionModel t
+        WHERE (t.senderAccountId = :accountId OR t.recipientAccountId = :accountId)
+        AND YEAR(t.createdAt) = YEAR(CURRENT_DATE)
+        GROUP BY MONTH(t.createdAt)
+        ORDER BY MONTH(t.createdAt)
+    """)
+    List<MonthlyTransactionMetrics> getMonthlyMetrics(Long accountId);
 }

@@ -1,5 +1,6 @@
 package br.com.joel.services;
 
+import br.com.joel.domain.domain.MonthlyTransactionMetrics;
 import br.com.joel.domain.domain.Transaction;
 import br.com.joel.domain.domain.TransactionDetails;
 import br.com.joel.domain.domain.TransactionExtractPayload;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -94,6 +96,10 @@ public class TransactionService {
 
     public TransactionDetails getTransactionDetails(String idempotencyKey) {
         return transactionRepository.getTransactionDetails(idempotencyKey);
+    }
+
+    public List<MonthlyTransactionMetrics> getMonthlyTransactionMetrics(Long accountId) {
+        return transactionRepository.getMonthlyTransactionMetrics(accountId);
     }
 
     private void idempotencyCheck(String idempotencyKey) {
