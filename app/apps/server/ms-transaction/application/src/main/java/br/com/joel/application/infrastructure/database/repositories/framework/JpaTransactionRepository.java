@@ -2,6 +2,7 @@ package br.com.joel.application.infrastructure.database.repositories.framework;
 
 import br.com.joel.application.infrastructure.database.domain.JpaTransactionModel;
 import br.com.joel.domain.domain.Transaction;
+import br.com.joel.domain.domain.TransactionDetails;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -19,4 +20,17 @@ public interface JpaTransactionRepository extends JpaRepository<JpaTransactionMo
            "WHERE (t.senderAccountId = :senderAccountId OR t.recipientAccountId = :recipientAccountId) " +
            "AND t.status = 'COMPLETED'")
     Transaction.Balance getCurrentValidProvisionalBalance(Long senderAccountId, Long recipientAccountId);
+
+    @Query("SELECT new br.com.joel.domain.domain.TransactionDetails(" +
+            "t.senderAccountId, " +
+            "t.recipientAccountId, " +
+            "t.amount, " +
+            "t.status, " +
+            "t.description, " +
+            "t.idempotencyKey, " +
+            "t.createdAt, " +
+            "t.updatedAt) " +
+            "FROM JpaTransactionModel t " +
+            "WHERE t.idempotencyKey = :idempotencyKey")
+    TransactionDetails getTransactionDetails(String idempotencyKey);
 }
