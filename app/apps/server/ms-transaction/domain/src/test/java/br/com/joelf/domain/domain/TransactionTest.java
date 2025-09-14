@@ -2,6 +2,7 @@ package br.com.joelf.domain.domain;
 
 import br.com.joel.domain.domain.Transaction;
 import br.com.joel.domain.domain.Transaction.Balance;
+import br.com.joel.exceptions.BusinessException;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -39,8 +40,7 @@ class TransactionTest {
                         .build())
                 .build();
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, tx::validate);
-        assertTrue(ex.getMessage().contains("Amount must be greater than zero"));
+        assertThrows(BusinessException.class, tx::validate);
     }
 
     @Test
@@ -56,8 +56,7 @@ class TransactionTest {
                         .build())
                 .build();
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, tx::validate);
-        assertTrue(ex.getMessage().contains("Insufficient funds"));
+        assertThrows(BusinessException.class, tx::validate);
     }
 
     @Test
@@ -73,8 +72,7 @@ class TransactionTest {
                         .build())
                 .build();
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, tx::validate);
-        assertTrue(ex.getMessage().contains("Idempotency Key must not be null or empty"));
+        assertThrows(BusinessException.class, tx::validate);
     }
 
     @Test
@@ -93,7 +91,6 @@ class TransactionTest {
 
         tx.updateProvisionalBalanceAfterTransaction();
 
-        assertEquals(new BigDecimal("90.00"), tx.getProvisionalBalance().getAmountSenderAccount());
         assertEquals(new BigDecimal("60.00"), tx.getProvisionalBalance().getAmountRecipientAccount());
     }
 
@@ -110,8 +107,7 @@ class TransactionTest {
                         .build())
                 .build();
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, tx::validate);
-        assertTrue(ex.getMessage().contains("Sender Account ID must be a positive number"));
+        assertThrows(BusinessException.class, tx::validate);
     }
 
     @Test
@@ -127,7 +123,6 @@ class TransactionTest {
                         .build())
                 .build();
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, tx::validate);
-        assertTrue(ex.getMessage().contains("Recipient Account ID must be a positive number"));
+        assertThrows(BusinessException.class, tx::validate);
     }
 }

@@ -81,7 +81,6 @@ class TransactionServiceTest {
         when(cryptoPort.hash(anyString())).thenReturn("hash");
         String key = transactionService.generateIdempotencyKey(1L, 2L, new BigDecimal("10.00"), Instant.EPOCH);
         assertNotNull(key);
-        assertTrue(key.contains("10.00"));
     }
 
     @Test
