@@ -1,6 +1,7 @@
 package br.com.joel.domain.domain;
 
 import br.com.joel.domain.domain.enums.TransactionStatus;
+import br.com.joel.exceptions.BusinessException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -69,18 +70,34 @@ public class Transaction {
                 .toList();
 
         if (!errors.isEmpty()) {
-            //TODO: personalized exception
-            throw new IllegalArgumentException("Invalid fields: " + String.join(", ", errors));
+            throw new BusinessException("Transaction validation failed", errors);
         }
     }
 
-    public void updateProvisionalBalanceAfterTransaction() {
+    public void updateProvisionalBalanceBeforeTransaction() {
         BigDecimal newSenderBalance = provisionalBalance.getAmountSenderAccount().subtract(amount);
-        BigDecimal newRecipientBalance = provisionalBalance.getAmountRecipientAccount().add(amount);
 
         this.provisionalBalance = Balance.builder()
                 .amountSenderAccount(newSenderBalance)
+                .amountRecipientAccount(provisionalBalance.getAmountRecipientAccount())
+                .build();
+    }
+
+    public void updateProvisionalBalanceAfterTransaction() {
+        BigDecimal newRecipientBalance = provisionalBalance.getAmountRecipientAccount().add(amount);
+
+        this.provisionalBalance = Balance.builder()
+                .amountSenderAccount(provisionalBalance.getAmountSenderAccount())
                 .amountRecipientAccount(newRecipientBalance)
+                .build();
+    }
+
+    public void restoreProvisionalBalance() {
+        BigDecimal restoredSenderBalance = provisionalBalance.getAmountSenderAccount().add(amount);
+
+        this.provisionalBalance = Balance.builder()
+                .amountSenderAccount(restoredSenderBalance)
+                .amountRecipientAccount(provisionalBalance.getAmountRecipientAccount())
                 .build();
     }
 }
