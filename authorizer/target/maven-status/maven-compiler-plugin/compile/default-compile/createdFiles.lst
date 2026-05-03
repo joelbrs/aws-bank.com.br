@@ -1,0 +1,3 @@
+br/com/awsbank/authorizer/Environment.class
+br/com/awsbank/authorizer/KeycloakAuthorizerHandler.class
+br/com/awsbank/authorizer/exceptions/AuthorizerException.class
