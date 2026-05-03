@@ -1,0 +1,10 @@
+services:
+  app:
+    build:
+        context: .
+        dockerfile: Dockerfile
+    ports:
+      - "9090:9090"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      JAVA_TOOL_OPTIONS: "-Dserver.port=9090 -Dserver.address=0.0.0.0"

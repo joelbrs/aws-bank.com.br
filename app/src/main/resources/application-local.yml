@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: app
+
+  config:
+    activate:
+      on-profile: LOCAL
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/localstack
+
+server:
+  port: 9090

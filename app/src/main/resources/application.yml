@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: app
+
+  config:
+    activate:
+      on-profile: PROD
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OAUTH2_RESOURCE_SERVER_JWT_ISSUER_URI}
+
+server:
+  port: 9090
