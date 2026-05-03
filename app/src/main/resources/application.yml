@@ -12,5 +12,13 @@ spring:
         jwt:
           issuer-uri: ${OAUTH2_RESOURCE_SERVER_JWT_ISSUER_URI}
 
+rest:
+  api:
+    keycloak:
+      realm: ${KEYCLOAK_REALM}
+      base-url: ${KEYCLOAK_BASE_URL}
+      client-id: ${KEYCLOAK_CLIENT_ID}
+      client-secret: ${KEYCLOAK_CLIENT_SECRET}
+
 server:
   port: 9090

@@ -12,5 +12,14 @@ spring:
         jwt:
           issuer-uri: http://localhost:8080/realms/localstack
 
+rest:
+  api:
+    keycloak:
+      realm: localstack
+      base-url: http://localhost:8080
+      client-id: localstack-client
+      client-secret: localstack-client-secret
+
+
 server:
   port: 9090
