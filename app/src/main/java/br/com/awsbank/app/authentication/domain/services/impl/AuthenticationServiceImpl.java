@@ -14,4 +14,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public void signUp(User user) {
         identityProviderPort.signUp(user);
     }
+
+    @Override
+    public void resendEmailVerification(String email) {
+        identityProviderPort.sendEmailVerification(email);
+    }
 }
