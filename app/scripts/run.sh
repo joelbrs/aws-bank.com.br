@@ -1,1 +1,1 @@
-mvn package && docker-compose up
+mvn package -Dspring.profiles.active=LOCAL && docker-compose up
