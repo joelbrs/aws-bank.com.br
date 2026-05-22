@@ -2,7 +2,6 @@ package br.com.awsbank.app.authentication.ports.in.dtos;
 
 import br.com.awsbank.app.authentication.domain.models.User;
 import br.com.awsbank.app.authentication.domain.models.credential.Credential;
-import br.com.awsbank.app.authentication.domain.models.credential.CredentialType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

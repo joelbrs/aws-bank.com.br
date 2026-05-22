@@ -27,6 +27,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(swaggerEndpoints).permitAll()
                         .requestMatchers(HttpMethod.POST, "/authentication/signup").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/authentication/resend-email-verification").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {}))
