@@ -1,5 +1,6 @@
 package br.com.awsbank.app.authentication.domain.models;
 
+import br.com.awsbank.app.authentication.domain.exceptions.ValidationException;
 import br.com.awsbank.app.authentication.domain.models.credential.Credential;
 import br.com.awsbank.app.authentication.domain.models.credential.CredentialType;
 import br.com.awsbank.app.commons.utils.validators.CPFFieldValidator;
@@ -7,6 +8,7 @@ import lombok.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -42,13 +44,13 @@ public class User {
 
     private void validate(String cpf, List<Credential> credentials) {
         if (!CPFFieldValidator.isValid(cpf)) {
-            throw new IllegalArgumentException("Invalid CPF.");
+            throw new ValidationException("Invalid CPF.");
         }
 
         int credentialCount = CredentialType.values().length;
 
         if (credentials == null || credentials.isEmpty() || credentials.size() != credentialCount) {
-            throw new IllegalArgumentException("User must have 2 credentials.");
+            throw new ValidationException("User must have 2 credentials.");
         }
 
         Set<CredentialType> credentialTypes = credentials.stream()
@@ -60,11 +62,16 @@ public class User {
                         .allMatch(credentialTypes::contains);
 
         if (credentialTypes.contains(null) || !hasAllCredentialTypes) {
-            throw new IllegalArgumentException("User must have exactly 2 credentials: PASSWORD and TRANSACTION_PASSWORD.");
+            throw new ValidationException("User must have exactly 2 credentials: PASSWORD and TRANSACTION_PASSWORD.");
         }
 
-        credentials.forEach(
-                credential -> credential.getType().validate(credential.getValue(), cpf)
-        );
+        List<ValidationException.ValidationExceptionDomainModel> invalidCredentialsValidationExceptions = credentials.stream()
+                .map(credential -> credential.getType().validate(credential.getValue(), cpf))
+                .filter(Objects::nonNull)
+                .toList();
+
+        if (!invalidCredentialsValidationExceptions.isEmpty()) {
+            throw new ValidationException(invalidCredentialsValidationExceptions);
+        }
     }
 }

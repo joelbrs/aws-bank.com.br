@@ -1,39 +1,41 @@
 package br.com.awsbank.app.authentication.domain.models.credential;
 
+import br.com.awsbank.app.authentication.domain.exceptions.ValidationException;
+import lombok.Getter;
+
+@Getter
 public enum CredentialType {
     PASSWORD("PASSWORD") {
         @Override
-        public void validate(String value, String cpf) throws IllegalArgumentException {
+        public ValidationException.ValidationExceptionDomainModel validate(String value, String cpf) throws IllegalArgumentException {
             boolean isValidPassword =
                     value != null && value.matches("^\\d{8}$") && isValid(value, cpf);
 
             if (!isValidPassword) {
-                throw new IllegalArgumentException("Password must be exactly 8 digits and cannot contain sequential numbers or the user's CPF.");
+                return new ValidationException.ValidationExceptionDomainModel("Password must be exactly 8 digits and cannot contain sequential numbers or the user's CPF.", "PASSWORD");
             }
+            return null;
         }
     },
     TRANSACTION_PASSWORD("TRANSACTION_PASSWORD") {
         @Override
-        public void validate(String value, String cpf) throws IllegalArgumentException {
+        public ValidationException.ValidationExceptionDomainModel validate(String value, String cpf) throws IllegalArgumentException {
             boolean isValidPassword =
                     value != null && value.matches("^\\d{6}$") && isValid(value, cpf);
 
             if (!isValidPassword) {
-                throw new IllegalArgumentException("Password must be exactly 6 digits and cannot contain sequential numbers or the user's CPF.");
+                return new ValidationException.ValidationExceptionDomainModel("Password must be exactly 6 digits and cannot contain sequential numbers or the user's CPF.", "TRANSACTION_PASSWORD");
             }
+            return null;
         }
     };
 
     private final String type;
 
-    public abstract void validate(String value, String cpf) throws IllegalArgumentException;
+    public abstract ValidationException.ValidationExceptionDomainModel validate(String value, String cpf) throws IllegalArgumentException;
 
     CredentialType(String type) {
         this.type = type;
-    }
-
-    public String getType() {
-        return type;
     }
 
     private static boolean isValid(String value, String cpf) {
